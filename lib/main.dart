@@ -5,6 +5,8 @@ import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
+import 'domain/dailyData.dart' show DailyData;
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -14,16 +16,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Diabetes Journal',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.teal,
+          // This is the theme of your application.
+          //
+          // Try running your application with "flutter run". You'll see the
+          // application has a blue toolbar. Then, without quitting the app, try
+          // changing the primarySwatch below to Colors.green and then invoke
+          // "hot reload" (press "r" in the console where you ran "flutter run",
+          // or simply save your changes to "hot reload" in a Flutter IDE).
+          // Notice that the counter didn't reset back to zero; the application
+          // is not restarted.
+          primaryColor: Colors.white
       ),
       home: MyHomePage(title: 'Diabetes Journal'),
     );
@@ -56,34 +58,11 @@ class _MyHomePageState extends State<MyHomePage> {
 //  List<DateTime> _markedDate = [DateTime(2018, 9, 20), DateTime(2018, 10, 11)];
   static Widget _eventIcon = new Container(
     color: Colors.red,
-
   );
 
-  static Widget _dayWidget = new Container(
-    
+  static Widget _dayWidget = new Container();
 
-  );
-
-  EventList<Event> _markedDateMap = new EventList<Event>(
-    events: {
-      new DateTime(2018, 12, 10): [
-        new Event(
-          date: new DateTime(2018, 12, 10),
-          title: 'Event 1',
-          icon: _eventIcon,
-        ),
-        new Event(
-          date: new DateTime(2018, 12, 10),
-          title: 'Event 2',
-          icon: _eventIcon,
-        ),
-        new Event(
-          date: new DateTime(2018, 12, 10),
-          title: 'Event 3',
-          icon: _eventIcon,
-        ),
-      ],
-    },
+  EventList<DailyData> _markedDateMap= new EventList<DailyData>(
   );
 
   CalendarCarousel _calendarCarousel;
@@ -93,47 +72,22 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     /// Add more events to _markedDateMap EventList
     _markedDateMap.add(
-        new DateTime(2018, 12, 25),
-        new Event(
-          date: new DateTime(2018, 12, 25),
-          title: 'Event 5',
-          icon: _eventIcon,
+        new DateTime(2019, 02, 10),
+        new DailyData(
+            date: new DateTime(2019, 02, 10),
+            title: "Title",
+            color: Colors.green,
         ));
 
-    _markedDateMap.add(
-        new DateTime(2018, 12, 10),
-        new Event(
-          date: new DateTime(2018, 12, 10),
-          title: 'Event 4',
-          icon: _eventIcon,
-        ));
-
-    _markedDateMap.addAll(new DateTime(2018, 12, 11), [
-      new Event(
-        date: new DateTime(2018, 12, 11),
-        title: 'Event 1',
-        icon: _eventIcon,
-      ),
-      new Event(
-        date: new DateTime(2018, 12, 11),
-        title: 'Event 2',
-        icon: _eventIcon,
-      ),
-      new Event(
-        date: new DateTime(2018, 12, 11),
-        title: 'Event 3',
-        icon: _eventIcon,
-      ),
-    ]);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     /// Example Calendar Carousel without header and custom prev & next button
-    _calendarCarousel = CalendarCarousel<Event>(
+    _calendarCarousel = CalendarCarousel<DailyData>(
       todayBorderColor: Colors.red,
-      onDayPressed: (DateTime date, List<Event> events) {
+      onDayPressed: (DateTime date, List<DailyData> events) {
         this.setState(() => _currentDate2 = date);
         events.forEach((event) => print(event.title));
       },
@@ -143,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
       thisMonthDayBorderColor: Colors.grey,
       weekFormat: false,
       markedDatesMap: _markedDateMap,
-      height: 390.0,
+      height: 440.0,
       selectedDateTime: _currentDate2,
       customGridViewPhysics: NeverScrollableScrollPhysics(),
       markedDateShowIcon: true,
@@ -151,12 +105,12 @@ class _MyHomePageState extends State<MyHomePage> {
       markedDateMoreShowTotal: null,
       // null for not showing hidden events indicator
       showHeader: true,
-      markedDateIconBuilder: (event) {
+      markedDateIconBuilder: (dailyData) {
         return new Container(
           decoration: new BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.all(Radius.circular(1000)),
-              border: Border.all(color: Colors.blue, width: 2.0)),
+              border: Border.all(color: dailyData.color, width: 2.0)),
         );
       },
       locale: "en_gb",
@@ -181,28 +135,34 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     return new Scaffold(
-        appBar: new AppBar(
-          title: new Text(widget.title),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              //custom icon
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 16.0),
-                child: _calendarCarousel,
-              ),
-              Container(
-                padding: EdgeInsets.all(0.0),
-                child: new Divider(
-                  height: 5.0,
+      appBar: new AppBar(
+        title: new Text(widget.title),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            //custom icon
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 1.0),
+              child: _calendarCarousel,
+              decoration: new BoxDecoration(color: Colors.white, boxShadow: [
+                new BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 10.0,
                 ),
-              ), //
-            ],
-          ),
+              ]),
+            ),
+            Container(
+              padding: EdgeInsets.all(10.0),
+              child: new Divider(
+                height: 5.0,
+              ),
+            ), //
+          ],
         ),
+      ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Actions',
         child: Icon(Icons.expand_less),
