@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart'
     show CalendarCarousel;
-import 'package:flutter_calendar_carousel/classes/event.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import 'domain/dailyData.dart' show DailyData;
 
-void main() => runApp(MyApp());
+void main() async {
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.white,
+    systemNavigationBarIconBrightness: Brightness.dark,// navigation bar color
+    statusBarColor: Colors.white, // stat
+    statusBarIconBrightness: Brightness.dark // us bar color
+  ));
+  runApp(DiabetesDiaryApp());
+}
 
-class MyApp extends StatelessWidget {
+class DiabetesDiaryApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Diabetes Journal',
+      title: 'Diabetes Diary',
       theme: ThemeData(
           // This is the theme of your application.
           //
@@ -25,9 +33,12 @@ class MyApp extends StatelessWidget {
           // or simply save your changes to "hot reload" in a Flutter IDE).
           // Notice that the counter didn't reset back to zero; the application
           // is not restarted.
-          primaryColor: Colors.white
+          primaryColor: Colors.white),
+      //    home: MyHomePage(title: 'Diabetes Journal'),
+      home: DefaultTabController(
+        length: 3,
+        child: MyHomePage(title: 'Diabetes Journal'),
       ),
-      home: MyHomePage(title: 'Diabetes Journal'),
     );
   }
 }
@@ -54,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime _currentDate = DateTime.now();
   DateTime _currentDate2 = DateTime.now();
   String _currentMonth = '';
+  bool weekFormat = false;
 
 //  List<DateTime> _markedDate = [DateTime(2018, 9, 20), DateTime(2018, 10, 11)];
   static Widget _eventIcon = new Container(
@@ -62,8 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   static Widget _dayWidget = new Container();
 
-  EventList<DailyData> _markedDateMap= new EventList<DailyData>(
-  );
+  EventList<DailyData> _markedDateMap = new EventList<DailyData>();
 
   CalendarCarousel _calendarCarousel;
   FloatingActionButton _floatingActionButton;
@@ -74,9 +85,9 @@ class _MyHomePageState extends State<MyHomePage> {
     _markedDateMap.add(
         new DateTime(2019, 02, 10),
         new DailyData(
-            date: new DateTime(2019, 02, 10),
-            title: "Title",
-            color: Colors.green,
+          date: new DateTime(2019, 02, 10),
+          title: "Title",
+          color: Colors.green,
         ));
 
     super.initState();
@@ -86,20 +97,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     /// Example Calendar Carousel without header and custom prev & next button
     _calendarCarousel = CalendarCarousel<DailyData>(
-      todayBorderColor: Colors.red,
+      todayBorderColor: Colors.lightGreen,
       onDayPressed: (DateTime date, List<DailyData> events) {
+        this.weekFormat = !this.weekFormat;
         this.setState(() => _currentDate2 = date);
         events.forEach((event) => print(event.title));
       },
+      inactiveWeekendTextStyle: TextStyle(
+        color: Colors.blue[100],
+      ),
       weekendTextStyle: TextStyle(
-        color: Colors.red[200],
+        color: Colors.blue[300],
       ),
       thisMonthDayBorderColor: Colors.grey,
-      weekFormat: false,
+      weekFormat: weekFormat,
       markedDatesMap: _markedDateMap,
-      height: 440.0,
+      height: 600.0,
       selectedDateTime: _currentDate2,
-      customGridViewPhysics: NeverScrollableScrollPhysics(),
+      customGridViewPhysics: AlwaysScrollableScrollPhysics(),
       markedDateShowIcon: true,
       markedDateIconMaxShown: 1,
       markedDateMoreShowTotal: null,
@@ -117,10 +132,8 @@ class _MyHomePageState extends State<MyHomePage> {
       todayTextStyle: TextStyle(
         color: Colors.black,
       ),
-      todayButtonColor: Colors.grey[300],
-      selectedDayTextStyle: TextStyle(
-        color: Colors.red,
-      ),
+      todayButtonColor: Colors.transparent,
+      selectedDayButtonColor: Colors.grey,
       minSelectedDate: _currentDate.subtract(Duration(days: 60)),
       maxSelectedDate: _currentDate,
 //      inactiveDateColor: Colors.black12,
@@ -135,37 +148,75 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            //custom icon
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
-              child: _calendarCarousel,
-              decoration: new BoxDecoration(color: Colors.white, boxShadow: [
-                new BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 10.0,
+      body: TabBarView(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                //custom icon
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 1.0),
+                  child: _calendarCarousel,
+                  decoration:
+                      new BoxDecoration(color: Colors.white, boxShadow: [
+                    new BoxShadow(
+                      color: Colors.black,
+                      blurRadius: 10.0,
+                    ),
+                  ]),
                 ),
-              ]),
+                Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: new Divider(
+                    height: 5.0,
+                  ),
+                ), //
+              ],
             ),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: new Divider(
-                height: 5.0,
-              ),
-            ), //
-          ],
-        ),
+          ),
+          new Container(
+            color: Colors.orange,
+          ),
+          new Container(
+            color: Colors.lightGreen,
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Actions',
-        child: Icon(Icons.expand_less),
+      floatingActionButton: Container(
+        child: new FloatingActionButton(
+          tooltip: 'Actions',
+          backgroundColor: Colors.white,
+          child: Icon(Icons.add, color: Colors.blue,),
+        ),
+        decoration: new BoxDecoration(color: Colors.transparent, shape: BoxShape.circle, boxShadow: [
+          new BoxShadow(
+            offset: Offset(2.5, 5.0),
+            color: Colors.black12,
+            blurRadius: 0.5,
+          ),
+        ]),
+      ),
+      bottomNavigationBar: Container(
+        child: new TabBar(
+          tabs: [
+            Tab(icon: Icon(Icons.calendar_today), text: "Diary",),
+            Tab(icon: Icon(Icons.show_chart), text: "Chart"),
+            Tab(icon: Icon(Icons.account_circle), text: "Account"),
+          ],
+          labelColor: Colors.blue,
+          unselectedLabelColor: Colors.grey,
+          indicatorSize: TabBarIndicatorSize.label,
+          indicatorPadding: EdgeInsets.all(5.0),
+          indicatorColor: Colors.blue,
+        ),
+        decoration: new BoxDecoration(color: Colors.white, boxShadow: [
+          new BoxShadow(
+            color: Colors.black12,
+            blurRadius: 5.0,
+          ),
+        ]),
       ),
     );
   }
